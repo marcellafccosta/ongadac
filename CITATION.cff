@@ -1,0 +1,32 @@
+cff-version: 1.0.1
+message: Please cite this software using these metadata.
+title: ADAC 
+authors:
+  - family-names: Teixeira Cândido
+    given-names: Ana Júlia
+  - family-names: Freitas Jardim
+    given-names: Arthur
+  - family-names: Ferreira Chaves Costa 
+    given-names: Marcella
+  - family-names: Mendes Rabelo
+    given-names: Sophia
+  - family-names: Andrade Ramalho
+    given-names: Thiago
+  - family-names: Moreira
+    given-names: Wilken Henrique
+  - name-suffix: Professor
+    affiliation: PUC Minas
+    family-names: Ribeiro de Souza
+    given-names: Joana Gabriela
+  - name-suffix: Professor
+    affiliation: PUC Minas
+    family-names: da Silva
+    given-names: Soraia Lúcia
+keywords:
+  - ong
+  - pets
+  - adoption
+repository-code: 
+license: CC-BY-4.0
+version: 1.0.0
+date-released: 2024-12-10

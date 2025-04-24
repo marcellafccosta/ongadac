@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model endereco {
+  id          Int      @id @default(autoincrement())
+  cep         String   @db.VarChar(20)
+  logradouro  String
+  numero      String
+  complemento String?
+  bairro      String
+  cidade      String
+  estado      String
+  usuarioId   Int?     @unique(map: "Endereco_usuarioId_key")
+  usuario     usuario? @relation(fields: [usuarioId], references: [id], map: "Endereco_usuarioId_fkey")
+}
+
+model infovoluntario {
+  id              Int      @id @default(autoincrement())
+  tempoDisponivel String   @db.Text
+  contribuicoes   String
+  profissao       String
+  usuarioId       Int?     @unique(map: "InfoVoluntario_usuarioId_key")
+  usuario         usuario? @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "InfoVoluntario_usuarioId_fkey")
+}
+
+model tarefa {
+  id             Int              @id @default(autoincrement())
+  titulo         String
+  descricao      String
+  dataCriada     DateTime
+  ordem          Int
+  status         tarefa_status
+  usuario_tarefa usuario_tarefa[]
+  pet            pet[]            @relation("pettotarefa")
+
+  @@map("tarefa")
+}
+
+model usuario {
+  id               Int              @id @default(autoincrement())
+  CPF              String           @unique(map: "Usuario_CPF_key")
+  dataNascimento   DateTime
+  nome             String
+  email            String           @unique
+  tel              String
+  senha            String           @db.VarChar(255)
+  senha_salt       String           @db.VarChar(255)
+  resetToken       String           @default("") @db.VarChar(255)
+  resetTokenExpiry DateTime         @default(now())
+  tipo             UsuarioTipo      @default(CLIENTE)
+  adocao           adocao[]
+  endereco         endereco?
+  infovoluntario   infovoluntario?
+  usuario_tarefa   usuario_tarefa[]
+}
+
+model usuario_tarefa {
+  usuarioId Int
+  tarefaId  Int
+  tarefa    tarefa  @relation(fields: [tarefaId], references: [id], onDelete: Cascade, map: "Usuario_Tarefa_tarefaId_fkey")
+  usuario   usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade, map: "Usuario_Tarefa_usuarioId_fkey")
+
+  @@id([usuarioId, tarefaId])
+  @@index([tarefaId], map: "Usuario_Tarefa_tarefaId_fkey")
+}
+
+model feedback {
+  id     Int    @id @default(autoincrement())
+  text   String @db.Text
+  author String
+}
+
+model patrocinio {
+  id   Int    @id @default(autoincrement())
+  nome String
+  img  String
+}
+
+model adocao {
+  id                    Int           @id @default(autoincrement())
+  data                  DateTime
+  status                adocao_status
+  proximoAcompanhamento DateTime?
+  petId                 Int
+  usuarioId             Int
+  respostasFormulario   Json?
+  pet                   pet           @relation(fields: [petId], references: [id], map: "Adocao_petId_fkey")
+  usuario               usuario       @relation(fields: [usuarioId], references: [id], map: "Adocao_usuarioId_fkey")
+
+  @@index([petId], map: "Index_Adocao_PetId")
+  @@index([usuarioId], map: "Index_Adocao_UsuarioId")
+}
+
+model evento {
+  id                  Int               @id @default(autoincrement())
+  nome                String
+  data                DateTime
+  horaInicio          String?
+  horaFim             String?
+  tipoEvento          evento_tipoEvento @default(Visita)
+  descricao           String?
+  local               String?
+  organizador         String?
+  numeroParticipantes Int?
+  color               String?           @default("#e6f7ff")
+  url                 String?
+}
+
+model pet {
+  id                   Int       @id @default(autoincrement())
+  nome                 String
+  idade                Int
+  sexo                 String
+  porte                String
+  deficiencia          String
+  descricaoDeficiencia String?
+  comportamento        String
+  img                  String
+  cor                  String
+  peso                 Float
+  raca                 String
+  especie              String
+  protetor             String?
+  dataResgate          DateTime?
+  historico            String?
+  conclusoes           String?
+  exameClinico         String?
+  adocao               adocao[]
+  tarefa               tarefa[]  @relation("pettotarefa")
+}
+
+enum UsuarioTipo {
+  CLIENTE
+  VOLUNTARIO
+  ADMIN
+}
+
+enum tarefa_status {
+  BACKLOG
+  FAZER
+  ANDAMENTO
+  CONCLUIDO
+}
+
+enum adocao_status {
+  PENDENTE
+  APROVADA
+  RECUSADA
+  EM_ANDAMENTO
+}
+
+enum evento_tipoEvento {
+  Evento
+  Feira
+  Visita
+}

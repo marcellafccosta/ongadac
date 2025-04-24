@@ -1,0 +1,47 @@
+services:
+  backend:
+    build:
+      context: ./server  # Caminho para o diretório do backend
+      dockerfile: Dockerfile.dev  # Nome do Dockerfile do backend
+    ports:
+      - "3001:3000"
+    networks:
+      - app-network
+    volumes:
+      - ./server:/app  # Mapeia o diretório local para o container para facilitar o desenvolvimento
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: "mysql://root:MasterPass-22@db:3306/ongadac"
+
+  frontend:
+    build:
+      context: ./client  # Caminho para o diretório do frontend
+      dockerfile: Dockerfile.dev  # Nome do Dockerfile do frontend
+    ports:
+      - "5173:5173"
+    networks:
+      - app-network
+    volumes:
+      - ./frontend:/app  # Mapeia o diretório local para o container
+    depends_on:
+      - backend
+
+  db:
+    image: mysql:8  # Exemplo de um banco de dados MySQL
+    container_name: mysql_container
+    environment:
+      MYSQL_ROOT_PASSWORD: MasterPass-22  # Senha do root do MySQL
+      MYSQL_DATABASE: ongadac  # Nome do banco de dados
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
